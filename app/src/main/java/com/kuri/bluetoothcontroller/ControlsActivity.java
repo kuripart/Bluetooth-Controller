@@ -12,8 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,8 +26,8 @@ public class ControlsActivity extends AppCompatActivity {
     BluetoothSocket bluetoothSocket = null;
     private boolean isBtConnected = false;
     String bluetoothData;
-    //SPP UUID. Look for it
-    static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //SPP UUID. Look for it
+    Miscellaneous miscellaneousDoings = new Miscellaneous();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +149,8 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.close(); //close connection
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
+
             }
 
         }
@@ -168,7 +167,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
     }
@@ -181,7 +180,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
     }
@@ -196,7 +195,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
         
@@ -213,7 +212,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
 
@@ -229,7 +228,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
 
@@ -245,7 +244,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
 
@@ -260,7 +259,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
 
@@ -277,7 +276,7 @@ public class ControlsActivity extends AppCompatActivity {
                 bluetoothSocket.getOutputStream().write(bluetoothData.getBytes());
 
             } catch (IOException e) {
-                msg("Error");
+                miscellaneousDoings.displayErrorToast("Error", getApplicationContext());
             }
         }
 
@@ -285,42 +284,13 @@ public class ControlsActivity extends AppCompatActivity {
 
 
 
-
-    // fast way to call Toast
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(),s, Toast.LENGTH_LONG).show();
-
-    }
-
-
-    //Currently dummy menu
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_led_control, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
+    //THIS IS THE MOST IMPORTANT SECTION FOR THE BLUETOOTH CODE
+    //REFER THE ONLINE ANDROID MANUAL FOR MORE INFORMATION
+    //MOST OF THE CODE STRUCTURE IS TAKEN FROM THE OPEN SOURCE CODE
 
     private class ConnectBT extends AsyncTask<Void, Void, Void> {  // UI thread
         //NOTE:
+        //---------------------------
         //AsyncTask enables proper and easy use of the UI thread.
         //This class allows you to perform background operations and publish
         //results on the UI thread without having to manipulate threads and/or handlers.
@@ -333,6 +303,7 @@ public class ControlsActivity extends AppCompatActivity {
 
 
         //EXTRA NOTES:
+        //----------------------------
         //onPreExecute():
         //invoked on the UI thread before the task is executed.
         //This step is normally used to setup the task,
@@ -366,7 +337,7 @@ public class ControlsActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute()
         {
-            progress = ProgressDialog.show(ControlsActivity.this, "Connecting...", "Please wait!!!");  //show a progress dialog
+            progress = ProgressDialog.show(ControlsActivity.this, "Connecting.......", "Please wait!");  //show a progress dialog
         }
 
         @Override
@@ -377,8 +348,8 @@ public class ControlsActivity extends AppCompatActivity {
                 if (bluetoothSocket == null || !isBtConnected) {
                     //check if bluetooth socket created and bluetooth should be connected if not
                     myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-                    BluetoothDevice dispositive = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
-                    bluetoothSocket = dispositive.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
+                    BluetoothDevice bluetoothDevice = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
+                    bluetoothSocket = bluetoothDevice.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     bluetoothSocket.connect();//start connection
                 }
@@ -393,18 +364,41 @@ public class ControlsActivity extends AppCompatActivity {
         {
             super.onPostExecute(result);
 
-            if (!ConnectSuccess)
-            {
-                msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
+            if (!ConnectSuccess) {
+                miscellaneousDoings.displayErrorToast("Connection Failed. Is it a SPP Bluetooth? Try again.", getApplicationContext());
                 finish();
             }
-            else
-            {
-                msg("Connected.");
+            else {
+                miscellaneousDoings.displaySuccessToast("Connected", getApplicationContext());
                 isBtConnected = true;
             }
             progress.dismiss();
         }
+    }
+
+
+    //Currently dummy menu
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_led_control, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 
